@@ -11,3 +11,9 @@ config/ble_app_template_s132_pca10040/nrf_drv_config.h
 ble_app_template.eww
 pca10028/s130/iar/ble_app_template_s130_pca10028.ewd
 pca10028/s130/iar/ble_app_template_s130_pca10028.ewp
+pca10028/s130/arm5_no_packs/EventRecorderStub.scvd
+*.ewp
+*.ewd
+*.icf
+*.ld
+*.eww

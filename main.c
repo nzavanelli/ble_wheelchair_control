@@ -29,7 +29,9 @@
 #include "softdevice_handler.h"
 #include "app_timer.h"
 #include "app_button.h"
-#include "ble_lbs.h"
+//#include "ble_lbs.h"
+#include "ble_wcc.h"
+#include "wheelchair_control_spi.h"
 #include "bsp.h"
 #include "ble_gap.h"
 
@@ -89,7 +91,7 @@ void assert_nrf_callback(uint16_t line_num, const uint8_t * p_file_name)
  *
  * @details Initializes all LEDs used by the application.
  */
-static void leds_init(void)
+static void gpio_init(void)
 {
     //LEDS_CONFIGURE(ADVERTISING_LED_PIN | CONNECTED_LED_PIN | LEDBUTTON_LED_PIN);
     //LEDS_OFF(ADVERTISING_LED_PIN | CONNECTED_LED_PIN | LEDBUTTON_LED_PIN);
@@ -97,6 +99,10 @@ static void leds_init(void)
 		nrf_gpio_cfg_output(12);
 		nrf_gpio_cfg_output(13);
 		nrf_gpio_cfg_output(14);
+		nrf_gpio_cfg_output(WHEELCHAIR_CONTROL_SPI_CS1);
+		nrf_gpio_cfg_output(WHEELCHAIR_CONTROL_SPI_CS2);
+		nrf_gpio_pin_set(WHEELCHAIR_CONTROL_SPI_CS1);
+		nrf_gpio_pin_set(WHEELCHAIR_CONTROL_SPI_CS2);
 		nrf_gpio_pin_clear(11);
 		nrf_gpio_pin_clear(12);
 		nrf_gpio_pin_clear(13);
@@ -182,7 +188,7 @@ static void advertising_init(void)
  */
 static void led_write_handler(ble_lbs_t * p_lbs, uint8_t led_state)
 {
-    if (led_state)
+    /*if (led_state)
     {
         //LEDS_ON(LEDBUTTON_LED_PIN);
 				nrf_gpio_pin_set(LEDBUTTON_LED_PIN);
@@ -192,7 +198,42 @@ static void led_write_handler(ble_lbs_t * p_lbs, uint8_t led_state)
     {
         //LEDS_OFF(LEDBUTTON_LED_PIN);
 				nrf_gpio_pin_clear(LEDBUTTON_LED_PIN);
-    }
+    }*/
+		switch(led_state) {
+			case 0x00:
+				nrf_gpio_pin_clear(11);
+				nrf_gpio_pin_clear(12);
+				nrf_gpio_pin_clear(13);
+				nrf_gpio_pin_clear(14);
+			//TODO: WRITE COMMANDS:
+				//wheelchair_reset();
+				break;
+			case 0x01:
+				nrf_gpio_pin_set(11);
+				nrf_gpio_pin_clear(12);
+				nrf_gpio_pin_clear(13);
+				nrf_gpio_pin_clear(14);
+				break;
+			case 0x0F:
+				nrf_gpio_pin_set(12);
+				nrf_gpio_pin_clear(11);
+				nrf_gpio_pin_clear(13);
+				nrf_gpio_pin_clear(14);
+				break;
+			case 0xF0:
+				nrf_gpio_pin_set(13);
+				nrf_gpio_pin_clear(12);
+				nrf_gpio_pin_clear(11);
+				nrf_gpio_pin_clear(14);
+				break;
+			case 0xFF:
+				nrf_gpio_pin_set(14);
+				nrf_gpio_pin_clear(12);
+				nrf_gpio_pin_clear(13);
+				nrf_gpio_pin_clear(11);
+				break;
+		}
+		NRF_LOG_PRINTF("LED WRITE: 0x%x \r\n",led_state);
 }
 
 
@@ -205,7 +246,7 @@ static void services_init(void)
 
     init.led_write_handler = led_write_handler;
 
-    err_code = ble_lbs_init(&m_lbs, &init);
+    err_code = ble_wcc_init(&m_lbs, &init);
     APP_ERROR_CHECK(err_code);
 }
 
@@ -285,7 +326,8 @@ static void advertising_start(void)
     err_code = sd_ble_gap_adv_start(&adv_params);
     APP_ERROR_CHECK(err_code);
     //LEDS_ON(ADVERTISING_LED_PIN);
-		nrf_gpio_pin_set(ADVERTISING_LED_PIN);
+		//nrf_gpio_pin_set(ADVERTISING_LED_PIN);
+		NRF_LOG_PRINTF("BLE ADVERTISING! \r\n");
 }
 
 
@@ -301,9 +343,10 @@ static void on_ble_evt(ble_evt_t * p_ble_evt)
     {
         case BLE_GAP_EVT_CONNECTED:
             //LEDS_ON(CONNECTED_LED_PIN);
-						nrf_gpio_pin_set(CONNECTED_LED_PIN);
+						//nrf_gpio_pin_set(CONNECTED_LED_PIN);
             //LEDS_OFF(ADVERTISING_LED_PIN);
-						nrf_gpio_pin_clear(ADVERTISING_LED_PIN);
+						//nrf_gpio_pin_clear(ADVERTISING_LED_PIN);
+						NRF_LOG_PRINTF("BLE CONNECTED! \r\n");
             m_conn_handle = p_ble_evt->evt.gap_evt.conn_handle;
 
             err_code = app_button_enable();
@@ -312,7 +355,8 @@ static void on_ble_evt(ble_evt_t * p_ble_evt)
 
         case BLE_GAP_EVT_DISCONNECTED:
             //LEDS_OFF(CONNECTED_LED_PIN);
-						nrf_gpio_pin_clear(CONNECTED_LED_PIN);
+						//nrf_gpio_pin_clear(CONNECTED_LED_PIN);
+						NRF_LOG_PRINTF("BLE DISCONNECTED! \r\n");
             m_conn_handle = BLE_CONN_HANDLE_INVALID;
 
             err_code = app_button_disable();
@@ -354,7 +398,7 @@ static void ble_evt_dispatch(ble_evt_t * p_ble_evt)
 {
     on_ble_evt(p_ble_evt);
     ble_conn_params_on_ble_evt(p_ble_evt);
-    ble_lbs_on_ble_evt(&m_lbs, p_ble_evt);
+    ble_wcc_on_ble_evt(&m_lbs, p_ble_evt);
 }
 
 
@@ -401,7 +445,7 @@ static void ble_stack_init(void)
  *
  * @param[in] pin_no        The pin that the event applies to.
  * @param[in] button_action The button action (press/release).
- */
+ 
 static void button_event_handler(uint8_t pin_no, uint8_t button_action)
 {
     uint32_t err_code;
@@ -423,10 +467,10 @@ static void button_event_handler(uint8_t pin_no, uint8_t button_action)
             break;
     }
 }
-
+*/
 
 /**@brief Function for initializing the button handler module.
- */
+
 static void buttons_init(void)
 {
     uint32_t err_code;
@@ -441,7 +485,7 @@ static void buttons_init(void)
                                BUTTON_DETECTION_DELAY);
     APP_ERROR_CHECK(err_code);
 }
-
+ */
 
 /**@brief Function for the Power Manager.
  */
@@ -458,9 +502,9 @@ static void power_manage(void)
 int main(void)
 {
     // Initialize.
-    leds_init();
+    gpio_init();
     timers_init();
-    buttons_init();
+		spi_init();
     ble_stack_init();
     gap_params_init();
     services_init();
@@ -469,8 +513,12 @@ int main(void)
 
     // Start execution.
     advertising_start();
-		nrf_gpio_pin_set(14);
-    // Enter main loop.
+    double outputValue = 2083.325;
+		
+		uint16_t dac1hex;
+		uint16_t dac2hex;
+		
+		// Enter main loop.
     for (;;)
     {
         power_manage();

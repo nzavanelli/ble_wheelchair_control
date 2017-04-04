@@ -53,6 +53,7 @@ uint16_t changespeed(uint16_t currentHex, uint16_t desiredState, uint8_t dac) {
 				
 			}
 		}
+		return 0;
 }
 
 void wheelchair_reset(void) {

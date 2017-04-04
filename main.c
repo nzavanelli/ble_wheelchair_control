@@ -68,7 +68,7 @@
 
 static uint16_t                         m_conn_handle = BLE_CONN_HANDLE_INVALID;    /**< Handle of the current connection. */
 static ble_lbs_t                        m_lbs;                                      /**< LED Button Service instance. */
-
+static uint8_t													m_whc_control = 0;
 
 /**@brief Function for assert macro callback.
  *
@@ -205,6 +205,7 @@ static void led_write_handler(ble_lbs_t * p_lbs, uint8_t led_state)
 				nrf_gpio_pin_clear(12);
 				nrf_gpio_pin_clear(13);
 				nrf_gpio_pin_clear(14);
+				m_whc_control = led_state;
 			//TODO: WRITE COMMANDS:
 				//wheelchair_reset();
 				break;
@@ -213,24 +214,31 @@ static void led_write_handler(ble_lbs_t * p_lbs, uint8_t led_state)
 				nrf_gpio_pin_clear(12);
 				nrf_gpio_pin_clear(13);
 				nrf_gpio_pin_clear(14);
+				m_whc_control = led_state;
 				break;
 			case 0x0F:
 				nrf_gpio_pin_set(12);
 				nrf_gpio_pin_clear(11);
 				nrf_gpio_pin_clear(13);
 				nrf_gpio_pin_clear(14);
+				m_whc_control = led_state;
 				break;
 			case 0xF0:
 				nrf_gpio_pin_set(13);
 				nrf_gpio_pin_clear(12);
 				nrf_gpio_pin_clear(11);
 				nrf_gpio_pin_clear(14);
+				m_whc_control = led_state;
 				break;
 			case 0xFF:
 				nrf_gpio_pin_set(14);
 				nrf_gpio_pin_clear(12);
 				nrf_gpio_pin_clear(13);
 				nrf_gpio_pin_clear(11);
+				m_whc_control = led_state;
+				break;
+			default:
+				m_whc_control = 0x00;
 				break;
 		}
 		NRF_LOG_PRINTF("LED WRITE: 0x%x \r\n",led_state);
@@ -347,6 +355,8 @@ static void on_ble_evt(ble_evt_t * p_ble_evt)
             //LEDS_OFF(ADVERTISING_LED_PIN);
 						//nrf_gpio_pin_clear(ADVERTISING_LED_PIN);
 						NRF_LOG_PRINTF("BLE CONNECTED! \r\n");
+						nrf_gpio_pin_clear(14);
+						nrf_gpio_pin_set(13);
             m_conn_handle = p_ble_evt->evt.gap_evt.conn_handle;
 
             err_code = app_button_enable();
@@ -358,7 +368,8 @@ static void on_ble_evt(ble_evt_t * p_ble_evt)
 						//nrf_gpio_pin_clear(CONNECTED_LED_PIN);
 						NRF_LOG_PRINTF("BLE DISCONNECTED! \r\n");
             m_conn_handle = BLE_CONN_HANDLE_INVALID;
-
+						nrf_gpio_pin_clear(13);
+						nrf_gpio_pin_set(14);
             err_code = app_button_disable();
             APP_ERROR_CHECK(err_code);
 
@@ -517,7 +528,7 @@ int main(void)
 		
 		uint16_t dac1hex;
 		uint16_t dac2hex;
-		
+		nrf_gpio_pin_set(14);
 		// Enter main loop.
     for (;;)
     {

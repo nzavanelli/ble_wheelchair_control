@@ -38,12 +38,6 @@
 #define CENTRAL_LINK_COUNT              0                                           /**< Number of central links used by the application. When changing this number remember to adjust the RAM settings*/
 #define PERIPHERAL_LINK_COUNT           1                                           /**< Number of peripheral links used by the application. When changing this number remember to adjust the RAM settings*/
 
-#define ADVERTISING_LED_PIN             11///BSP_LED_0_MASK                              /**< Is on when device is advertising. */
-#define CONNECTED_LED_PIN               12//BSP_LED_1_MASK                              /**< Is on when device has connected. */
-
-#define LEDBUTTON_LED_PIN               13//BSP_LED_2_MASK                              /**< LED to be toggled with the help of the LED Button Service. */
-#define LEDBUTTON_BUTTON_PIN            8//BSP_BUTTON_0                                /**< Button that will trigger the notification event with the LED Button Service */
-
 #define DEVICE_NAME                     "WheelchairControl"                             /**< Name of device. Will be included in the advertising data. */
 
 #define APP_ADV_INTERVAL                64                                          /**< The advertising interval (in units of 0.625 ms; this value corresponds to 40 ms). */
@@ -95,18 +89,18 @@ static void gpio_init(void)
 {
     //LEDS_CONFIGURE(ADVERTISING_LED_PIN | CONNECTED_LED_PIN | LEDBUTTON_LED_PIN);
     //LEDS_OFF(ADVERTISING_LED_PIN | CONNECTED_LED_PIN | LEDBUTTON_LED_PIN);
-		nrf_gpio_cfg_output(11);
-		nrf_gpio_cfg_output(12);
-		nrf_gpio_cfg_output(13);
-		nrf_gpio_cfg_output(14);
+		nrf_gpio_cfg_output(LED0);
+		nrf_gpio_cfg_output(LED1);
+		nrf_gpio_cfg_output(LED2);
+		nrf_gpio_cfg_output(LED3);
 		nrf_gpio_cfg_output(WHEELCHAIR_CONTROL_SPI_CS1);
 		nrf_gpio_cfg_output(WHEELCHAIR_CONTROL_SPI_CS2);
 		nrf_gpio_pin_set(WHEELCHAIR_CONTROL_SPI_CS1);
 		nrf_gpio_pin_set(WHEELCHAIR_CONTROL_SPI_CS2);
-		nrf_gpio_pin_clear(11);
-		nrf_gpio_pin_clear(12);
-		nrf_gpio_pin_clear(13);
-		nrf_gpio_pin_clear(14);
+		nrf_gpio_pin_clear(LED0);
+		nrf_gpio_pin_clear(LED1);
+		nrf_gpio_pin_clear(LED2);
+		nrf_gpio_pin_clear(LED3);
 }
 
 
@@ -201,40 +195,40 @@ static void led_write_handler(ble_lbs_t * p_lbs, uint8_t led_state)
     }*/
 		switch(led_state) {
 			case 0x00:
-				nrf_gpio_pin_clear(11);
-				nrf_gpio_pin_clear(12);
-				nrf_gpio_pin_clear(13);
-				nrf_gpio_pin_clear(14);
+				nrf_gpio_pin_clear(LED0);
+				nrf_gpio_pin_clear(LED1);
+				nrf_gpio_pin_clear(LED2);
+				nrf_gpio_pin_clear(LED3);
 				m_whc_control = led_state;
 			//TODO: WRITE COMMANDS:
-				//wheelchair_reset();
+				
 				break;
 			case 0x01:
-				nrf_gpio_pin_set(11);
-				nrf_gpio_pin_clear(12);
-				nrf_gpio_pin_clear(13);
-				nrf_gpio_pin_clear(14);
+				nrf_gpio_pin_set(LED0);
+				nrf_gpio_pin_clear(LED1);
+				nrf_gpio_pin_clear(LED2);
+				nrf_gpio_pin_clear(LED3);
 				m_whc_control = led_state;
 				break;
 			case 0x0F:
-				nrf_gpio_pin_set(12);
-				nrf_gpio_pin_clear(11);
-				nrf_gpio_pin_clear(13);
-				nrf_gpio_pin_clear(14);
+				nrf_gpio_pin_set(LED1);
+				nrf_gpio_pin_clear(LED0);
+				nrf_gpio_pin_clear(LED2);
+				nrf_gpio_pin_clear(LED3);
 				m_whc_control = led_state;
 				break;
 			case 0xF0:
-				nrf_gpio_pin_set(13);
-				nrf_gpio_pin_clear(12);
-				nrf_gpio_pin_clear(11);
-				nrf_gpio_pin_clear(14);
+				nrf_gpio_pin_set(LED2);
+				nrf_gpio_pin_clear(LED1);
+				nrf_gpio_pin_clear(LED0);
+				nrf_gpio_pin_clear(LED3);
 				m_whc_control = led_state;
 				break;
 			case 0xFF:
-				nrf_gpio_pin_set(14);
-				nrf_gpio_pin_clear(12);
-				nrf_gpio_pin_clear(13);
-				nrf_gpio_pin_clear(11);
+				nrf_gpio_pin_set(LED3);
+				nrf_gpio_pin_clear(LED1);
+				nrf_gpio_pin_clear(LED2);
+				nrf_gpio_pin_clear(LED0);
 				m_whc_control = led_state;
 				break;
 			default:
@@ -350,13 +344,9 @@ static void on_ble_evt(ble_evt_t * p_ble_evt)
     switch (p_ble_evt->header.evt_id)
     {
         case BLE_GAP_EVT_CONNECTED:
-            //LEDS_ON(CONNECTED_LED_PIN);
-						//nrf_gpio_pin_set(CONNECTED_LED_PIN);
-            //LEDS_OFF(ADVERTISING_LED_PIN);
-						//nrf_gpio_pin_clear(ADVERTISING_LED_PIN);
 						NRF_LOG_PRINTF("BLE CONNECTED! \r\n");
-						nrf_gpio_pin_clear(14);
-						nrf_gpio_pin_set(13);
+						nrf_gpio_pin_clear(LED0);
+						nrf_gpio_pin_set(LED1);
             m_conn_handle = p_ble_evt->evt.gap_evt.conn_handle;
 
             err_code = app_button_enable();
@@ -364,12 +354,10 @@ static void on_ble_evt(ble_evt_t * p_ble_evt)
             break;
 
         case BLE_GAP_EVT_DISCONNECTED:
-            //LEDS_OFF(CONNECTED_LED_PIN);
-						//nrf_gpio_pin_clear(CONNECTED_LED_PIN);
 						NRF_LOG_PRINTF("BLE DISCONNECTED! \r\n");
             m_conn_handle = BLE_CONN_HANDLE_INVALID;
-						nrf_gpio_pin_clear(13);
-						nrf_gpio_pin_set(14);
+						nrf_gpio_pin_clear(LED1);
+						nrf_gpio_pin_set(LED0);
             err_code = app_button_disable();
             APP_ERROR_CHECK(err_code);
 
@@ -451,53 +439,6 @@ static void ble_stack_init(void)
     APP_ERROR_CHECK(err_code);
 }
 
-
-/**@brief Function for handling events from the button handler module.
- *
- * @param[in] pin_no        The pin that the event applies to.
- * @param[in] button_action The button action (press/release).
- 
-static void button_event_handler(uint8_t pin_no, uint8_t button_action)
-{
-    uint32_t err_code;
-
-    switch (pin_no)
-    {
-        case LEDBUTTON_BUTTON_PIN:
-            err_code = ble_lbs_on_button_change(&m_lbs, button_action);
-            if (err_code != NRF_SUCCESS &&
-                err_code != BLE_ERROR_INVALID_CONN_HANDLE &&
-                err_code != NRF_ERROR_INVALID_STATE)
-            {
-                APP_ERROR_CHECK(err_code);
-            }
-            break;
-
-        default:
-            APP_ERROR_HANDLER(pin_no);
-            break;
-    }
-}
-*/
-
-/**@brief Function for initializing the button handler module.
-
-static void buttons_init(void)
-{
-    uint32_t err_code;
-
-    //The array must be static because a pointer to it will be saved in the button handler module.
-    static app_button_cfg_t buttons[] =
-    {
-        {LEDBUTTON_BUTTON_PIN, false, BUTTON_PULL, button_event_handler}
-    };
-
-    err_code = app_button_init(buttons, sizeof(buttons) / sizeof(buttons[0]),
-                               BUTTON_DETECTION_DELAY);
-    APP_ERROR_CHECK(err_code);
-}
- */
-
 /**@brief Function for the Power Manager.
  */
 static void power_manage(void)
@@ -506,8 +447,6 @@ static void power_manage(void)
 
     APP_ERROR_CHECK(err_code);
 }
-
-
 /**@brief Function for application main entry.
  */
 int main(void)
@@ -522,16 +461,56 @@ int main(void)
     advertising_init();
     conn_params_init();
 
-    // Start execution.
+    //Start Advertising
     advertising_start();
-    double outputValue = 2083.325;
 		
-		uint16_t dac1hex;
-		uint16_t dac2hex;
-		nrf_gpio_pin_set(14);
+		//Initialize vars:
+    bool is_in_reset_state = false;
+		uint16_t dac1_val = 0;
+		uint16_t dac2_val = 0;
+		//Ready
+		nrf_gpio_pin_set(LED0);
+		//TODO: Call wheelchair reset state!
+		
 		// Enter main loop.
+	//TEST HIGH/LOW BYTE FUNCTS:
+		uint16_t val = 0x1234;
+		uint8_t hb = highbyte(val);
+		uint8_t lb = lowbyte(val);
+		NRF_LOG_PRINTF("HB = [0x%x], LB = [0x%x] \r\n", hb, lb);
+		
     for (;;)
     {
+				if( m_whc_control == 0x00 ) {
+					NRF_LOG_PRINTF("m_whc_control: 0x%x \r\n RESET \r\n",m_whc_control); //STATE: RESET, "S"
+					is_in_reset_state = wheelchair_reset(is_in_reset_state, &dac1_val, &dac2_val);
+					NRF_LOG_PRINTF("Updated Dac Vals: [%d] [%d] \r\n",dac1_val, dac2_val);
+					
+				} else if (m_whc_control == 0x01) {
+					NRF_LOG_PRINTF("m_whc_control: 0x%x \r\n",m_whc_control); //STATE "W" (FWD)
+					wheelchair_move_forward(&dac1_val, &dac2_val);
+					is_in_reset_state = false;
+					NRF_LOG_PRINTF("Updated Dac Vals: [%d] [%d] \r\n",dac1_val, dac2_val);
+					
+				} else if (m_whc_control == 0x0F) {
+					NRF_LOG_PRINTF("m_whc_control: 0x%x \r\n",m_whc_control);	//STATE "A" (LEFT)
+					wheelchair_move_left(&dac1_val, &dac2_val);
+					is_in_reset_state = false;
+					NRF_LOG_PRINTF("Updated Dac Vals: [%d] [%d] \r\n",dac1_val, dac2_val);
+					
+				} else if (m_whc_control == 0xF0) {
+					NRF_LOG_PRINTF("m_whc_control: 0x%x \r\n",m_whc_control); //STATE "D" (RIGHT)
+					wheelchair_move_right(&dac1_val, &dac2_val);
+					is_in_reset_state = false;
+					NRF_LOG_PRINTF("Updated Dac Vals: [%d] [%d] \r\n",dac1_val, dac2_val);
+					
+				} else if (m_whc_control == 0xFF) {
+					NRF_LOG_PRINTF("m_whc_control: 0x%x \r\n",m_whc_control); //STATE "?" (REVERSE)
+					wheelchair_move_reverse(&dac1_val, &dac2_val);
+					is_in_reset_state = false;
+					NRF_LOG_PRINTF("Updated Dac Vals: [%d] [%d] \r\n",dac1_val, dac2_val);
+					
+				}
         power_manage();
     }
 }

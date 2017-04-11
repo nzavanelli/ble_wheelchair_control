@@ -25,6 +25,8 @@ uint8_t lowbyte(uint16_t val);
 
 uint8_t changespeed(uint16_t *currentHex, uint16_t desiredState, uint8_t dac);
 
+bool wheelchair_reset_init(uint16_t *dac1_value, uint16_t *dac2_value);
+
 bool wheelchair_reset(bool is_reset, uint16_t *dac1_value, uint16_t *dac2_value);
 
 void wheelchair_move_forward(uint16_t *dac1_value, uint16_t *dac2_value);

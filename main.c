@@ -34,6 +34,7 @@
 #include "wheelchair_control_spi.h"
 #include "bsp.h"
 #include "ble_gap.h"
+#include "nrf_delay.h"
 
 #define CENTRAL_LINK_COUNT              0                                           /**< Number of central links used by the application. When changing this number remember to adjust the RAM settings*/
 #define PERIPHERAL_LINK_COUNT           1                                           /**< Number of peripheral links used by the application. When changing this number remember to adjust the RAM settings*/
@@ -47,8 +48,8 @@
 #define APP_TIMER_MAX_TIMERS            6                                           /**< Maximum number of simultaneously created timers. */
 #define APP_TIMER_OP_QUEUE_SIZE         4                                           /**< Size of timer operation queues. */
 
-#define MIN_CONN_INTERVAL               MSEC_TO_UNITS(100, UNIT_1_25_MS)            /**< Minimum acceptable connection interval (0.5 seconds). */
-#define MAX_CONN_INTERVAL               MSEC_TO_UNITS(200, UNIT_1_25_MS)            /**< Maximum acceptable connection interval (1 second). */
+#define MIN_CONN_INTERVAL               MSEC_TO_UNITS(10, UNIT_1_25_MS)            /**< Minimum acceptable connection interval (0.5 seconds). */
+#define MAX_CONN_INTERVAL               MSEC_TO_UNITS(50, UNIT_1_25_MS)            /**< Maximum acceptable connection interval (1 second). */
 #define SLAVE_LATENCY                   0                                           /**< Slave latency. */
 #define CONN_SUP_TIMEOUT                MSEC_TO_UNITS(4000, UNIT_10_MS)             /**< Connection supervisory time-out (4 seconds). */
 #define FIRST_CONN_PARAMS_UPDATE_DELAY  APP_TIMER_TICKS(20000, APP_TIMER_PRESCALER) /**< Time from initiating event (connect or start of notification) to first time sd_ble_gap_conn_param_update is called (15 seconds). */
@@ -63,7 +64,7 @@
 static uint16_t                         m_conn_handle = BLE_CONN_HANDLE_INVALID;    /**< Handle of the current connection. */
 static ble_lbs_t                        m_lbs;                                      /**< LED Button Service instance. */
 static uint8_t													m_whc_control = 0;
-
+static bool															m_connected = false;
 /**@brief Function for assert macro callback.
  *
  * @details This function will be called in case of an assert in the SoftDevice.
@@ -348,7 +349,7 @@ static void on_ble_evt(ble_evt_t * p_ble_evt)
 						nrf_gpio_pin_clear(LED0);
 						nrf_gpio_pin_set(LED1);
             m_conn_handle = p_ble_evt->evt.gap_evt.conn_handle;
-
+						m_connected = true;
             err_code = app_button_enable();
             APP_ERROR_CHECK(err_code);
             break;
@@ -360,7 +361,7 @@ static void on_ble_evt(ble_evt_t * p_ble_evt)
 						nrf_gpio_pin_set(LED0);
             err_code = app_button_disable();
             APP_ERROR_CHECK(err_code);
-
+						m_connected = false;
             advertising_start();
             break;
 
@@ -468,50 +469,50 @@ int main(void)
     bool is_in_reset_state = false;
 		uint16_t dac1_val = 0;
 		uint16_t dac2_val = 0;
+		// Enter main loop.
+		//is_in_reset_state = wheelchair_reset(is_in_reset_state, &dac1_val, &dac2_val);
+		is_in_reset_state = wheelchair_reset_init(&dac1_val, &dac2_val);
+		nrf_delay_ms(50);
 		//Ready
 		nrf_gpio_pin_set(LED0);
-		//TODO: Call wheelchair reset state!
-		
-		// Enter main loop.
-	//TEST HIGH/LOW BYTE FUNCTS:
-		uint16_t val = 0x1234;
-		uint8_t hb = highbyte(val);
-		uint8_t lb = lowbyte(val);
-		NRF_LOG_PRINTF("HB = [0x%x], LB = [0x%x] \r\n", hb, lb);
-		
     for (;;)
     {
-				if( m_whc_control == 0x00 ) {
-					NRF_LOG_PRINTF("m_whc_control: 0x%x \r\n RESET \r\n",m_whc_control); //STATE: RESET, "S"
-					is_in_reset_state = wheelchair_reset(is_in_reset_state, &dac1_val, &dac2_val);
-					NRF_LOG_PRINTF("Updated Dac Vals: [%d] [%d] \r\n",dac1_val, dac2_val);
-					
-				} else if (m_whc_control == 0x01) {
-					NRF_LOG_PRINTF("m_whc_control: 0x%x \r\n",m_whc_control); //STATE "W" (FWD)
-					wheelchair_move_forward(&dac1_val, &dac2_val);
-					is_in_reset_state = false;
-					NRF_LOG_PRINTF("Updated Dac Vals: [%d] [%d] \r\n",dac1_val, dac2_val);
-					
-				} else if (m_whc_control == 0x0F) {
-					NRF_LOG_PRINTF("m_whc_control: 0x%x \r\n",m_whc_control);	//STATE "A" (LEFT)
-					wheelchair_move_left(&dac1_val, &dac2_val);
-					is_in_reset_state = false;
-					NRF_LOG_PRINTF("Updated Dac Vals: [%d] [%d] \r\n",dac1_val, dac2_val);
-					
-				} else if (m_whc_control == 0xF0) {
-					NRF_LOG_PRINTF("m_whc_control: 0x%x \r\n",m_whc_control); //STATE "D" (RIGHT)
-					wheelchair_move_right(&dac1_val, &dac2_val);
-					is_in_reset_state = false;
-					NRF_LOG_PRINTF("Updated Dac Vals: [%d] [%d] \r\n",dac1_val, dac2_val);
-					
-				} else if (m_whc_control == 0xFF) {
-					NRF_LOG_PRINTF("m_whc_control: 0x%x \r\n",m_whc_control); //STATE "?" (REVERSE)
-					wheelchair_move_reverse(&dac1_val, &dac2_val);
-					is_in_reset_state = false;
-					NRF_LOG_PRINTF("Updated Dac Vals: [%d] [%d] \r\n",dac1_val, dac2_val);
-					
+				if(m_connected) {
+						if( m_whc_control == 0x00 ) {
+							NRF_LOG_PRINTF("m_whc_control: 0x%x \r\n RESET \r\n",m_whc_control); //STATE: RESET, "S"
+							is_in_reset_state = wheelchair_reset(is_in_reset_state, &dac1_val, &dac2_val);
+							NRF_LOG_PRINTF("Updated Dac Vals: [%d] [%d] \r\n",dac1_val, dac2_val);
+							
+						} else if (m_whc_control == 0x01) {
+							NRF_LOG_PRINTF("m_whc_control: 0x%x \r\n",m_whc_control); //STATE "W" (FWD)
+							wheelchair_move_forward(&dac1_val, &dac2_val);
+							is_in_reset_state = false;
+							NRF_LOG_PRINTF("Updated Dac Vals: [%d] [%d] \r\n",dac1_val, dac2_val);
+							
+						} else if (m_whc_control == 0x0F) {
+							NRF_LOG_PRINTF("m_whc_control: 0x%x \r\n",m_whc_control);	//STATE "A" (LEFT)
+							wheelchair_move_left(&dac1_val, &dac2_val);
+							is_in_reset_state = false;
+							NRF_LOG_PRINTF("Updated Dac Vals: [%d] [%d] \r\n",dac1_val, dac2_val);
+							
+						} else if (m_whc_control == 0xF0) {
+							NRF_LOG_PRINTF("m_whc_control: 0x%x \r\n",m_whc_control); //STATE "D" (RIGHT)
+							wheelchair_move_right(&dac1_val, &dac2_val);
+							is_in_reset_state = false;
+							NRF_LOG_PRINTF("Updated Dac Vals: [%d] [%d] \r\n",dac1_val, dac2_val);
+							
+						} else if (m_whc_control == 0xFF) {
+							NRF_LOG_PRINTF("m_whc_control: 0x%x \r\n",m_whc_control); //STATE "?" (REVERSE) 
+							wheelchair_move_reverse(&dac1_val, &dac2_val);
+							is_in_reset_state = false;
+							NRF_LOG_PRINTF("Updated Dac Vals: [%d] [%d] \r\n",dac1_val, dac2_val);
+							
+						}
+				} else {
+						m_whc_control = 0x00;
+						is_in_reset_state = wheelchair_reset(is_in_reset_state, &dac1_val, &dac2_val);
 				}
-        power_manage();
+				power_manage();
     }
 }
 

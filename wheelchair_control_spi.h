@@ -2,16 +2,17 @@
 
 #include "app_util_platform.h"
 //SPI PINS
-#define WHEELCHAIR_CONTROL_SPI_CS1 9
-#define WHEELCHAIR_CONTROL_SPI_CS2 10
-#define WHEELCHAIR_CONTROL_SPI_MOSI 8
-#define WHEELCHAIR_CONTROL_SPI_SCLK 11
+
 //LED Pins
 #if defined(BOARD_WHC_CTRL_V1)
 	#define LED0 14
 	#define LED1 13
 	#define LED2 15
 	#define LED3 16
+	#define WHEELCHAIR_CONTROL_SPI_CS1 9
+	#define WHEELCHAIR_CONTROL_SPI_CS2 10
+	#define WHEELCHAIR_CONTROL_SPI_MOSI 8
+	#define WHEELCHAIR_CONTROL_SPI_SCLK 11
 #endif
 
 #if defined(BOARD_WHC_CTRL_V2)
@@ -19,6 +20,10 @@
 	#define LED1 3
 	#define LED2 15
 	#define LED3 16
+	#define WHEELCHAIR_CONTROL_SPI_CS1 12
+	#define WHEELCHAIR_CONTROL_SPI_CS2 9
+	#define WHEELCHAIR_CONTROL_SPI_MOSI 10
+	#define WHEELCHAIR_CONTROL_SPI_SCLK 11
 #endif
 
 void spi_init(void);

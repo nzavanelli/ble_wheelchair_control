@@ -7,11 +7,19 @@
 #define WHEELCHAIR_CONTROL_SPI_MOSI 8
 #define WHEELCHAIR_CONTROL_SPI_SCLK 11
 //LED Pins
-#define LED0 14
-#define LED1 13
-#define LED2 15
-#define LED3 16
+#if defined(BOARD_WHC_CTRL_V1)
+	#define LED0 14
+	#define LED1 13
+	#define LED2 15
+	#define LED3 16
+#endif
 
+#if defined(BOARD_WHC_CTRL_V2)
+	#define LED0 4 //POWER
+	#define LED1 3
+	#define LED2 15
+	#define LED3 16
+#endif
 
 void spi_init(void);
 

@@ -196,40 +196,69 @@ static void led_write_handler(ble_lbs_t * p_lbs, uint8_t led_state)
     }*/
 		switch(led_state) {
 			case 0x00:
-				nrf_gpio_pin_clear(LED0);
-				nrf_gpio_pin_clear(LED1);
+				#if defined(BOARD_WHC_CTRL_V1)
+					nrf_gpio_pin_clear(LED0);
+					nrf_gpio_pin_clear(LED1);
+				#endif
+				#if defined(BOARD_WHC_CTRL_V2)
+						nrf_gpio_pin_set(LED0);
+						nrf_gpio_pin_set(LED1);
+				#endif
 				nrf_gpio_pin_clear(LED2);
 				nrf_gpio_pin_clear(LED3);
 				m_whc_control = led_state;
 			//TODO: WRITE COMMANDS:
-				
 				break;
 			case 0x01:
-				nrf_gpio_pin_set(LED0);
-				nrf_gpio_pin_clear(LED1);
+				#if defined(BOARD_WHC_CTRL_V1)
+					nrf_gpio_pin_set(LED0);
+					nrf_gpio_pin_clear(LED1);
+				#endif
+				#if defined(BOARD_WHC_CTRL_V2)
+					nrf_gpio_pin_clear(LED0);
+					nrf_gpio_pin_set(LED1);
+				#endif
 				nrf_gpio_pin_clear(LED2);
 				nrf_gpio_pin_clear(LED3);
 				m_whc_control = led_state;
 				break;
 			case 0x0F:
-				nrf_gpio_pin_set(LED1);
-				nrf_gpio_pin_clear(LED0);
+				#if defined(BOARD_WHC_CTRL_V1)
+					nrf_gpio_pin_set(LED1);
+					nrf_gpio_pin_clear(LED0);
+				#endif
+				#if defined(BOARD_WHC_CTRL_V2)
+					nrf_gpio_pin_clear(LED1);
+					nrf_gpio_pin_set(LED0);
+				#endif
 				nrf_gpio_pin_clear(LED2);
 				nrf_gpio_pin_clear(LED3);
 				m_whc_control = led_state;
 				break;
 			case 0xF0:
-				nrf_gpio_pin_set(LED2);
+			#if defined(BOARD_WHC_CTRL_V1)
 				nrf_gpio_pin_clear(LED1);
 				nrf_gpio_pin_clear(LED0);
+			#endif
+			#if defined(BOARD_WHC_CTRL_V2)
+				nrf_gpio_pin_set(LED1);
+				nrf_gpio_pin_set(LED0);
+			#endif
+				nrf_gpio_pin_set(LED2);
 				nrf_gpio_pin_clear(LED3);
 				m_whc_control = led_state;
 				break;
 			case 0xFF:
+				#if defined(BOARD_WHC_CTRL_V1)
+					nrf_gpio_pin_clear(LED1);
+					nrf_gpio_pin_clear(LED0);
+				#endif
+				#if defined(BOARD_WHC_CTRL_V2)
+					nrf_gpio_pin_set(LED1);
+					nrf_gpio_pin_set(LED0);
+				#endif
 				nrf_gpio_pin_set(LED3);
-				nrf_gpio_pin_clear(LED1);
 				nrf_gpio_pin_clear(LED2);
-				nrf_gpio_pin_clear(LED0);
 				m_whc_control = led_state;
 				break;
 			default:
@@ -346,8 +375,14 @@ static void on_ble_evt(ble_evt_t * p_ble_evt)
     {
         case BLE_GAP_EVT_CONNECTED:
 						NRF_LOG_PRINTF("BLE CONNECTED! \r\n");
+				#if defined(BOARD_WHC_CTRL_V1)
 						nrf_gpio_pin_clear(LED0);
 						nrf_gpio_pin_set(LED1);
+				#endif
+				#if defined(BOARD_WHC_CTRL_V2)
+						nrf_gpio_pin_set(LED0);
+						nrf_gpio_pin_clear(LED1);
+				#endif
             m_conn_handle = p_ble_evt->evt.gap_evt.conn_handle;
 						m_connected = true;
             err_code = app_button_enable();
@@ -357,8 +392,14 @@ static void on_ble_evt(ble_evt_t * p_ble_evt)
         case BLE_GAP_EVT_DISCONNECTED:
 						NRF_LOG_PRINTF("BLE DISCONNECTED! \r\n");
             m_conn_handle = BLE_CONN_HANDLE_INVALID;
+				#if defined(BOARD_WHC_CTRL_V1)
 						nrf_gpio_pin_clear(LED1);
 						nrf_gpio_pin_set(LED0);
+				#endif
+				#if defined(BOARD_WHC_CTRL_V2)
+						nrf_gpio_pin_clear(LED0);
+						nrf_gpio_pin_set(LED1);
+				#endif
             err_code = app_button_disable();
             APP_ERROR_CHECK(err_code);
 						m_connected = false;
@@ -474,7 +515,13 @@ int main(void)
 		is_in_reset_state = wheelchair_reset_init(&dac1_val, &dac2_val);
 		nrf_delay_ms(50);
 		//Ready
-		nrf_gpio_pin_set(LED0);
+		#if defined(BOARD_WHC_CTRL_V1)
+			nrf_gpio_pin_set(LED0);
+		#endif
+		#if defined(BOARD_WHC_CTRL_V2)
+			nrf_gpio_pin_clear(LED0);
+			nrf_gpio_pin_set(LED1);
+		#endif
     for (;;)
     {
 				if(m_connected) {

@@ -20,8 +20,8 @@
 	#define LED1 3
 	#define LED2 15
 	#define LED3 16
-	#define WHEELCHAIR_CONTROL_SPI_CS1 12
-	#define WHEELCHAIR_CONTROL_SPI_CS2 9
+	#define WHEELCHAIR_CONTROL_SPI_CS1 9
+	#define WHEELCHAIR_CONTROL_SPI_CS2 12 //SWAPPED 7:28 4/26/17 
 	#define WHEELCHAIR_CONTROL_SPI_MOSI 10
 	#define WHEELCHAIR_CONTROL_SPI_SCLK 11
 #endif
@@ -37,6 +37,12 @@ uint8_t highbyte(uint16_t val);
 uint8_t lowbyte(uint16_t val);
 
 uint8_t changespeed(uint16_t *currentHex, uint16_t desiredState, uint8_t dac);
+
+void wheelchair_set_forward(void);
+
+void wheelchair_set_left(void);
+
+void wheelchair_set_right(void);
 
 bool wheelchair_reset_init(uint16_t *dac1_value, uint16_t *dac2_value);
 

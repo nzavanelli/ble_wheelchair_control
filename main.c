@@ -526,38 +526,43 @@ int main(void)
     {
 				if(m_connected) {
 						if( m_whc_control == 0x00 ) {
-							NRF_LOG_PRINTF("m_whc_control: 0x%x \r\n RESET \r\n",m_whc_control); //STATE: RESET, "S"
-							is_in_reset_state = wheelchair_reset(is_in_reset_state, &dac1_val, &dac2_val);
-							NRF_LOG_PRINTF("Updated Dac Vals: [%d] [%d] \r\n",dac1_val, dac2_val);
+							//NRF_LOG_PRINTF("m_whc_control: 0x%x \r\n RESET \r\n",m_whc_control); //STATE: RESET, "S"
+							//is_in_reset_state = wheelchair_reset(is_in_reset_state, &dac1_val, &dac2_val);
+							//NRF_LOG_PRINTF("Updated Dac Vals: [%d] [%d] \r\n",dac1_val, dac2_val);
+							wheelchair_reset_init(&dac1_val,&dac2_val);
 							
 						} else if (m_whc_control == 0x01) {
-							NRF_LOG_PRINTF("m_whc_control: 0x%x \r\n",m_whc_control); //STATE "W" (FWD)
-							wheelchair_move_forward(&dac1_val, &dac2_val);
+							//NRF_LOG_PRINTF("m_whc_control: 0x%x \r\n",m_whc_control); //STATE "W" (FWD)
+							//wheelchair_move_forward(&dac1_val, &dac2_val);
+							wheelchair_set_forward();
 							is_in_reset_state = false;
-							NRF_LOG_PRINTF("Updated Dac Vals: [%d] [%d] \r\n",dac1_val, dac2_val);
+							//NRF_LOG_PRINTF("Updated Dac Vals: [%d] [%d] \r\n",dac1_val, dac2_val);
 							
 						} else if (m_whc_control == 0x0F) {
-							NRF_LOG_PRINTF("m_whc_control: 0x%x \r\n",m_whc_control);	//STATE "A" (LEFT)
-							wheelchair_move_left(&dac1_val, &dac2_val);
+							//NRF_LOG_PRINTF("m_whc_control: 0x%x \r\n",m_whc_control);	//STATE "A" (LEFT)
+							wheelchair_set_left();
+							//wheelchair_move_left(&dac1_val, &dac2_val);
 							is_in_reset_state = false;
-							NRF_LOG_PRINTF("Updated Dac Vals: [%d] [%d] \r\n",dac1_val, dac2_val);
+							//NRF_LOG_PRINTF("Updated Dac Vals: [%d] [%d] \r\n",dac1_val, dac2_val);
 							
 						} else if (m_whc_control == 0xF0) {
-							NRF_LOG_PRINTF("m_whc_control: 0x%x \r\n",m_whc_control); //STATE "D" (RIGHT)
-							wheelchair_move_right(&dac1_val, &dac2_val);
+							//NRF_LOG_PRINTF("m_whc_control: 0x%x \r\n",m_whc_control); //STATE "D" (RIGHT)
+							//wheelchair_move_right(&dac1_val, &dac2_val);
+							wheelchair_set_right();
 							is_in_reset_state = false;
-							NRF_LOG_PRINTF("Updated Dac Vals: [%d] [%d] \r\n",dac1_val, dac2_val);
+							//NRF_LOG_PRINTF("Updated Dac Vals: [%d] [%d] \r\n",dac1_val, dac2_val);
 							
 						} else if (m_whc_control == 0xFF) {
-							NRF_LOG_PRINTF("m_whc_control: 0x%x \r\n",m_whc_control); //STATE "?" (REVERSE) 
+							//NRF_LOG_PRINTF("m_whc_control: 0x%x \r\n",m_whc_control); //STATE "?" (REVERSE) 
 							wheelchair_move_reverse(&dac1_val, &dac2_val);
 							is_in_reset_state = false;
-							NRF_LOG_PRINTF("Updated Dac Vals: [%d] [%d] \r\n",dac1_val, dac2_val);
+							//NRF_LOG_PRINTF("Updated Dac Vals: [%d] [%d] \r\n",dac1_val, dac2_val);
 							
 						}
 				} else {
 						m_whc_control = 0x00;
-						is_in_reset_state = wheelchair_reset(is_in_reset_state, &dac1_val, &dac2_val);
+						//is_in_reset_state = wheelchair_reset(is_in_reset_state, &dac1_val, &dac2_val);
+					wheelchair_reset_init(&dac1_val,&dac2_val);
 				}
 				power_manage();
     }

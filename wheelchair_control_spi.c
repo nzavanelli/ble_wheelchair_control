@@ -193,7 +193,7 @@ void wheelchair_set_right() {
 		//NRF_LOG_PRINTF("wheelchair_reset_init errcode = [%d] \r\n",errcode);
 }
 
-bool wheelchair_reset_init(uint16_t *dac1_value, uint16_t *dac2_value) {
+bool wheelchair_reset_init() {
 		uint8_t byte1 = 0;
 		uint8_t byte2 = 0;
 		uint8_t errcode;
@@ -261,6 +261,6 @@ void wheelchair_move_right(uint16_t *dac1_value, uint16_t *dac2_value) {
 		//NRF_LOG_PRINTF("WHC_MV_RIGHT: DAC1 ERRCODE [%d]\r\n",errcode);
 }
 
-void wheelchair_move_reverse(uint16_t *dac1_value, uint16_t *dac2_value) {
+void wheelchair_move_reverse() {
 		NRF_LOG_PRINTF("REVERSE NOT YET IMPLEMENTED! [%d]\r\n");
 }

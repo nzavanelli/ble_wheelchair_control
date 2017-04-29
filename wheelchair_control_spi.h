@@ -2,16 +2,29 @@
 
 #include "app_util_platform.h"
 //SPI PINS
-#define WHEELCHAIR_CONTROL_SPI_CS1 9
-#define WHEELCHAIR_CONTROL_SPI_CS2 10
-#define WHEELCHAIR_CONTROL_SPI_MOSI 8
-#define WHEELCHAIR_CONTROL_SPI_SCLK 11
-//LED Pins
-#define LED0 14
-#define LED1 13
-#define LED2 15
-#define LED3 16
 
+//LED Pins
+#if defined(BOARD_WHC_CTRL_V1)
+	#define LED0 14
+	#define LED1 13
+	#define LED2 15
+	#define LED3 16
+	#define WHEELCHAIR_CONTROL_SPI_CS1 9
+	#define WHEELCHAIR_CONTROL_SPI_CS2 10
+	#define WHEELCHAIR_CONTROL_SPI_MOSI 8
+	#define WHEELCHAIR_CONTROL_SPI_SCLK 11
+#endif
+
+#if defined(BOARD_WHC_CTRL_V2)
+	#define LED0 4 //POWER
+	#define LED1 3
+	#define LED2 15
+	#define LED3 16
+	#define WHEELCHAIR_CONTROL_SPI_CS1 9
+	#define WHEELCHAIR_CONTROL_SPI_CS2 12 //SWAPPED 7:28 4/26/17 
+	#define WHEELCHAIR_CONTROL_SPI_MOSI 10
+	#define WHEELCHAIR_CONTROL_SPI_SCLK 11
+#endif
 
 void spi_init(void);
 
@@ -25,7 +38,13 @@ uint8_t lowbyte(uint16_t val);
 
 uint8_t changespeed(uint16_t *currentHex, uint16_t desiredState, uint8_t dac);
 
-bool wheelchair_reset_init(uint16_t *dac1_value, uint16_t *dac2_value);
+void wheelchair_set_forward(void);
+
+void wheelchair_set_left(void);
+
+void wheelchair_set_right(void);
+
+bool wheelchair_reset_init();
 
 bool wheelchair_reset(bool is_reset, uint16_t *dac1_value, uint16_t *dac2_value);
 
@@ -35,5 +54,5 @@ void wheelchair_move_left(uint16_t *dac1_value, uint16_t *dac2_value);
 
 void wheelchair_move_right(uint16_t *dac1_value, uint16_t *dac2_value);
 
-void wheelchair_move_reverse(uint16_t *dac1_value, uint16_t *dac2_value);
+void wheelchair_move_reverse();
 

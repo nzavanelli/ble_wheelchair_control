@@ -57,7 +57,8 @@ uint8_t wheelchair_spi_write(uint8_t dac, uint8_t byte1, uint8_t byte2) {
 	nrf_gpio_pin_clear(cs_dac_pin); //PULL CS LOW
 	errcode = nrf_drv_spi_transfer(&spi, tx_transfer_data, 2, NULL, 0);
 	//delay?
-	nrf_delay_ms(1);
+	//nrf_delay_ms(1);
+	nrf_delay_us(100);
 	nrf_gpio_pin_set(cs_dac_pin);		//PULL CS BACK HIGH
 	return errcode;
 }
@@ -88,10 +89,10 @@ uint8_t changespeed(uint16_t *currentHex, uint16_t desiredState, uint8_t dac) {
 		uint8_t byte1 = 0;
 		uint8_t byte2 = 0;
 		if (*currentHex > desiredState) {
-			NRF_LOG_PRINTF("Vals b4 while loop: cH:[%d]>dS:[%d] \r\n",*currentHex, desiredState);
+			//NRF_LOG_PRINTF("Vals b4 while loop: cH:[%d]>dS:[%d] \r\n",*currentHex, desiredState);
 			diff = *currentHex-desiredState;
 			RoC = diff/stp;
-			NRF_LOG_PRINTF("Vals b4 while loop: [%d] [%d] \r\n",diff, RoC);
+			//NRF_LOG_PRINTF("Vals b4 while loop: [%d] [%d] \r\n",diff, RoC);
 			while (i<stp) {
 				*currentHex -= RoC;
 				outputValue = *currentHex;
@@ -99,16 +100,16 @@ uint8_t changespeed(uint16_t *currentHex, uint16_t desiredState, uint8_t dac) {
 				byte2 = lowbyte(outputValue);
 				byte1 = encodeFirstByte(byte1);
 				errcode = wheelchair_spi_write(dac, byte1, byte2);
-				NRF_LOG_PRINTF("Vals IN while loop:i=%d [%d] \r\n",i,*currentHex);
+				//NRF_LOG_PRINTF("Vals IN while loop:i=%d [%d] \r\n",i,*currentHex);
 				i++;
 			}
 		} 
 		
 		if (desiredState > *currentHex) {
-			NRF_LOG_PRINTF("Vals b4 while loop: cH:[%d]<dS:[%d] \r\n",*currentHex, desiredState);
+			//NRF_LOG_PRINTF("Vals b4 while loop: cH:[%d]<dS:[%d] \r\n",*currentHex, desiredState);
 			diff = desiredState - *currentHex;
 			RoC = (diff/stp);
-			NRF_LOG_PRINTF("Vals b4 while loop: [%d] [%d] \r\n",diff, RoC);
+			//NRF_LOG_PRINTF("Vals b4 while loop: [%d] [%d] \r\n",diff, RoC);
 			while(i<stp) {
 				*currentHex += RoC;
 				outputValue = *currentHex;
@@ -116,7 +117,7 @@ uint8_t changespeed(uint16_t *currentHex, uint16_t desiredState, uint8_t dac) {
 				byte2 = lowbyte(outputValue);
 				byte1 = encodeFirstByte(byte1);
 				errcode = wheelchair_spi_write(dac,byte1,byte2);
-				NRF_LOG_PRINTF("Vals IN while loop:i=%d [%d] \r\n",i,*currentHex);
+				//NRF_LOG_PRINTF("Vals IN while loop:i=%d [%d] \r\n",i,*currentHex);
 				i++;
 			}
 		}
@@ -127,11 +128,72 @@ uint8_t changespeed(uint16_t *currentHex, uint16_t desiredState, uint8_t dac) {
 			byte2 = lowbyte(outputValue);
 			byte1 = encodeFirstByte(byte1);
 			errcode = wheelchair_spi_write(dac,byte1,byte2);
-			NRF_LOG_PRINTF("Final Vals:i=%d [%d] \r\n",i,*currentHex);
+			//NRF_LOG_PRINTF("Final Vals:i=%d [%d] \r\n",i,*currentHex);
 		return errcode;
 }
+/** This is a temporary function for force-setting the wheelchair into it's forward state:
+*/
+void wheelchair_set_forward() {
+		uint8_t byte1 = 0;
+		uint8_t byte2 = 0;
+		uint8_t byte1_1 = 0;
+		uint8_t byte2_1 = 0;
+		uint8_t errcode;
+		uint16_t desiredState = 2250; //2.70*833.33 = 2249.991
+		byte1 = highbyte(desiredState);
+		byte2 = lowbyte(desiredState);
+		byte1 = encodeFirstByte(byte1);
+	
+		uint16_t desiredState2 = 1967; 
+		byte1_1 = highbyte(desiredState2);
+		byte2_1 = lowbyte(desiredState2);
+		byte1_1 = encodeFirstByte(byte1_1);
+		errcode = wheelchair_spi_write(1, byte1, byte2);
+		errcode = wheelchair_spi_write(2, byte1_1, byte2_1);
+		//NRF_LOG_PRINTF("wheelchair_reset_init errcode = [%d] \r\n",errcode);
+}
 
-bool wheelchair_reset_init(uint16_t *dac1_value, uint16_t *dac2_value) {
+void wheelchair_set_left() {
+		uint8_t byte1 = 0;
+		uint8_t byte2 = 0;
+		uint8_t byte1_1 = 0;
+		uint8_t byte2_1 = 0;
+		uint8_t errcode;
+		uint16_t desiredState = RESET_VOLTAGE_INT;
+		byte1 = highbyte(desiredState);
+		byte2 = lowbyte(desiredState);
+		byte1 = encodeFirstByte(byte1);
+	
+		uint16_t desiredState2 = 1708; //2.70*833.33 = 2249.991
+		byte1_1 = highbyte(desiredState2);
+		byte2_1 = lowbyte(desiredState2);
+		byte1_1 = encodeFirstByte(byte1_1);
+		errcode = wheelchair_spi_write(1, byte1, byte2);
+		errcode = wheelchair_spi_write(2, byte1_1, byte2_1);
+		//NRF_LOG_PRINTF("wheelchair_reset_init errcode = [%d] \r\n",errcode);
+}
+
+void wheelchair_set_right() {
+		uint8_t byte1 = 0;
+		uint8_t byte2 = 0;
+		uint8_t byte1_1 = 0;
+		uint8_t byte2_1 = 0;
+		uint8_t errcode;
+		uint16_t desiredState = RESET_VOLTAGE_INT;
+		byte1 = highbyte(desiredState);
+		byte2 = lowbyte(desiredState);
+		byte1 = encodeFirstByte(byte1);
+	
+		uint16_t desiredState2 = 2250; //2.70*833.33 = 2249.991
+		byte1_1 = highbyte(desiredState2);
+		byte2_1 = lowbyte(desiredState2);
+		byte1_1 = encodeFirstByte(byte1_1);
+		errcode = wheelchair_spi_write(1, byte1, byte2);
+		errcode = wheelchair_spi_write(2, byte1_1, byte2_1);
+		//NRF_LOG_PRINTF("wheelchair_reset_init errcode = [%d] \r\n",errcode);
+}
+
+bool wheelchair_reset_init() {
 		uint8_t byte1 = 0;
 		uint8_t byte2 = 0;
 		uint8_t errcode;
@@ -141,7 +203,7 @@ bool wheelchair_reset_init(uint16_t *dac1_value, uint16_t *dac2_value) {
 		byte1 = encodeFirstByte(byte1);
 		errcode = wheelchair_spi_write(1, byte1, byte2);
 		errcode = wheelchair_spi_write(2, byte1, byte2);
-		NRF_LOG_PRINTF("wheelchair_reset_init errcode = [%d] \r\n",errcode);
+		//NRF_LOG_PRINTF("wheelchair_reset_init errcode = [%d] \r\n",errcode);
 		return true;
 }
 
@@ -153,10 +215,10 @@ bool wheelchair_reset(bool is_reset, uint16_t *dac1_value, uint16_t *dac2_value)
 	if(!is_reset) {
 		//if not yet reset:
 		//Start with DAC 2:
-		NRF_LOG_PRINTF("RESETTING DAC 2\r\n");
+		//NRF_LOG_PRINTF("RESETTING DAC 2\r\n");
 		errcode = changespeed(dac2_value, desiredState, 2);
 		//Then DAC 1:
-		NRF_LOG_PRINTF("RESETTING DAC 1\r\n");
+		//NRF_LOG_PRINTF("RESETTING DAC 1\r\n");
 		errcode = changespeed(dac1_value, desiredState, 1);
 	}
 	//NRF_LOG_PRINTF("wheelchair_reset errcode = [%d] \r\n",errcode);
@@ -168,11 +230,11 @@ void wheelchair_move_forward(uint16_t *dac1_value, uint16_t *dac2_value) {
 	//DAC 2:
 		uint16_t desiredState = 1967; //2.36*833.33 = 1966.6588
 		errcode = changespeed(dac2_value, desiredState, 2); //Pass by reference. 
-		NRF_LOG_PRINTF("WHC_MV_FWD: DAC2 ERRCODE [%d]\r\n",errcode);
+		//NRF_LOG_PRINTF("WHC_MV_FWD: DAC2 ERRCODE [%d]\r\n",errcode);
 	//DAC 1:
 		uint16_t desiredState2 = 2250; //2.70*833.33 = 2249.991
 		errcode = changespeed(dac1_value, desiredState2, 1);
-		NRF_LOG_PRINTF("WHC_MV_FWD: DAC1 ERRCODE [%d]\r\n",errcode);
+		//NRF_LOG_PRINTF("WHC_MV_FWD: DAC1 ERRCODE [%d]\r\n",errcode);
 }
 
 void wheelchair_move_left(uint16_t *dac1_value, uint16_t *dac2_value) {
@@ -180,11 +242,11 @@ void wheelchair_move_left(uint16_t *dac1_value, uint16_t *dac2_value) {
 	//DAC 2:
 		uint16_t desiredState = 2250; //2.70*833.33 = 2249.991
 		errcode = changespeed(dac2_value, desiredState, 2); //Pass by reference. 
-		NRF_LOG_PRINTF("WHC_MV_LEFT: DAC2 ERRCODE [%d]\r\n",errcode);
+		//NRF_LOG_PRINTF("WHC_MV_LEFT: DAC2 ERRCODE [%d]\r\n",errcode);
 	//DAC 1:
 		uint16_t desiredState2 = RESET_VOLTAGE_INT; //2.50*833.33 = 2083.325
 		errcode = changespeed(dac1_value, desiredState2, 1);
-		NRF_LOG_PRINTF("WHC_MV_LEFT: DAC1 ERRCODE [%d]\r\n",errcode);
+		//NRF_LOG_PRINTF("WHC_MV_LEFT: DAC1 ERRCODE [%d]\r\n",errcode);
 }
 
 void wheelchair_move_right(uint16_t *dac1_value, uint16_t *dac2_value) {
@@ -192,13 +254,13 @@ void wheelchair_move_right(uint16_t *dac1_value, uint16_t *dac2_value) {
 	//DAC 2:
 		uint16_t desiredState = 1708; //2.05*833.33 = 1708.3265
 		errcode = changespeed(dac2_value, desiredState, 2); //Pass by reference. 
-		NRF_LOG_PRINTF("WHC_MV_RIGHT: DAC2 ERRCODE [%d]\r\n",errcode);
+		//NRF_LOG_PRINTF("WHC_MV_RIGHT: DAC2 ERRCODE [%d]\r\n",errcode);
 	//DAC 1:
 		uint16_t desiredState2 = RESET_VOLTAGE_INT; //2.50*833.33 = 2083.325
 		errcode = changespeed(dac1_value, desiredState2, 1);
-		NRF_LOG_PRINTF("WHC_MV_RIGHT: DAC1 ERRCODE [%d]\r\n",errcode);
+		//NRF_LOG_PRINTF("WHC_MV_RIGHT: DAC1 ERRCODE [%d]\r\n",errcode);
 }
 
-void wheelchair_move_reverse(uint16_t *dac1_value, uint16_t *dac2_value) {
+void wheelchair_move_reverse() {
 		NRF_LOG_PRINTF("REVERSE NOT YET IMPLEMENTED! [%d]\r\n");
 }

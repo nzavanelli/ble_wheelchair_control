@@ -200,12 +200,12 @@ static void led_write_handler(ble_lbs_t * p_lbs, uint8_t led_state)
 					nrf_gpio_pin_clear(LED0);
 					nrf_gpio_pin_clear(LED1);
 				#endif
-				#if defined(BOARD_WHC_CTRL_V2)
-						nrf_gpio_pin_set(LED0);
-						nrf_gpio_pin_set(LED1);
-				#endif
-				nrf_gpio_pin_clear(LED2);
-				nrf_gpio_pin_clear(LED3);
+//				#if defined(BOARD_WHC_CTRL_V2)
+//					nrf_gpio_pin_set(LED0);
+//					nrf_gpio_pin_set(LED1);
+//				#endif
+//				nrf_gpio_pin_clear(LED2);
+//				nrf_gpio_pin_clear(LED3);
 				m_whc_control = led_state;
 			//TODO: WRITE COMMANDS:
 				break;
@@ -214,12 +214,12 @@ static void led_write_handler(ble_lbs_t * p_lbs, uint8_t led_state)
 					nrf_gpio_pin_set(LED0);
 					nrf_gpio_pin_clear(LED1);
 				#endif
-				#if defined(BOARD_WHC_CTRL_V2)
-					nrf_gpio_pin_clear(LED0);
-					nrf_gpio_pin_set(LED1);
-				#endif
-				nrf_gpio_pin_clear(LED2);
-				nrf_gpio_pin_clear(LED3);
+//				#if defined(BOARD_WHC_CTRL_V2)
+//					nrf_gpio_pin_clear(LED0);
+//					nrf_gpio_pin_set(LED1);
+//				#endif
+//				nrf_gpio_pin_clear(LED2);
+//				nrf_gpio_pin_clear(LED3);
 				m_whc_control = led_state;
 				break;
 			case 0x0F:
@@ -227,12 +227,12 @@ static void led_write_handler(ble_lbs_t * p_lbs, uint8_t led_state)
 					nrf_gpio_pin_set(LED1);
 					nrf_gpio_pin_clear(LED0);
 				#endif
-				#if defined(BOARD_WHC_CTRL_V2)
-					nrf_gpio_pin_clear(LED1);
-					nrf_gpio_pin_set(LED0);
-				#endif
-				nrf_gpio_pin_clear(LED2);
-				nrf_gpio_pin_clear(LED3);
+//				#if defined(BOARD_WHC_CTRL_V2)
+//					nrf_gpio_pin_clear(LED1);
+//					nrf_gpio_pin_set(LED0);
+//				#endif
+//				nrf_gpio_pin_clear(LED2);
+//				nrf_gpio_pin_clear(LED3);
 				m_whc_control = led_state;
 				break;
 			case 0xF0:
@@ -240,12 +240,12 @@ static void led_write_handler(ble_lbs_t * p_lbs, uint8_t led_state)
 				nrf_gpio_pin_clear(LED1);
 				nrf_gpio_pin_clear(LED0);
 			#endif
-			#if defined(BOARD_WHC_CTRL_V2)
-				nrf_gpio_pin_set(LED1);
-				nrf_gpio_pin_set(LED0);
-			#endif
-				nrf_gpio_pin_set(LED2);
-				nrf_gpio_pin_clear(LED3);
+//			#if defined(BOARD_WHC_CTRL_V2)
+//				nrf_gpio_pin_set(LED1);
+//				nrf_gpio_pin_set(LED0);
+//			#endif
+//				nrf_gpio_pin_set(LED2);
+//				nrf_gpio_pin_clear(LED3);
 				m_whc_control = led_state;
 				break;
 			case 0xFF:
@@ -253,12 +253,12 @@ static void led_write_handler(ble_lbs_t * p_lbs, uint8_t led_state)
 					nrf_gpio_pin_clear(LED1);
 					nrf_gpio_pin_clear(LED0);
 				#endif
-				#if defined(BOARD_WHC_CTRL_V2)
-					nrf_gpio_pin_set(LED1);
-					nrf_gpio_pin_set(LED0);
-				#endif
-				nrf_gpio_pin_set(LED3);
-				nrf_gpio_pin_clear(LED2);
+//				#if defined(BOARD_WHC_CTRL_V2)
+//					nrf_gpio_pin_set(LED1);
+//					nrf_gpio_pin_set(LED0);
+//				#endif
+//				nrf_gpio_pin_set(LED3);
+//				nrf_gpio_pin_clear(LED2);
 				m_whc_control = led_state;
 				break;
 			default:
@@ -507,12 +507,12 @@ int main(void)
     advertising_start();
 		
 		//Initialize vars:
-    bool is_in_reset_state = false;
-		uint16_t dac1_val = 0;
-		uint16_t dac2_val = 0;
+//    bool is_in_reset_state = false;
+//		uint16_t dac1_val = 0;
+//		uint16_t dac2_val = 0;
 		// Enter main loop.
 		//is_in_reset_state = wheelchair_reset(is_in_reset_state, &dac1_val, &dac2_val);
-		is_in_reset_state = wheelchair_reset_init(&dac1_val, &dac2_val);
+		wheelchair_reset_init();
 		nrf_delay_ms(50);
 		//Ready
 		#if defined(BOARD_WHC_CTRL_V1)
@@ -535,27 +535,27 @@ int main(void)
 							//NRF_LOG_PRINTF("m_whc_control: 0x%x \r\n",m_whc_control); //STATE "W" (FWD)
 							//wheelchair_move_forward(&dac1_val, &dac2_val);
 							wheelchair_set_forward();
-							is_in_reset_state = false;
+							//is_in_reset_state = false;
 							//NRF_LOG_PRINTF("Updated Dac Vals: [%d] [%d] \r\n",dac1_val, dac2_val);
 							
 						} else if (m_whc_control == 0x0F) {
 							//NRF_LOG_PRINTF("m_whc_control: 0x%x \r\n",m_whc_control);	//STATE "A" (LEFT)
 							wheelchair_set_left();
 							//wheelchair_move_left(&dac1_val, &dac2_val);
-							is_in_reset_state = false;
+							//is_in_reset_state = false;
 							//NRF_LOG_PRINTF("Updated Dac Vals: [%d] [%d] \r\n",dac1_val, dac2_val);
 							
 						} else if (m_whc_control == 0xF0) {
 							//NRF_LOG_PRINTF("m_whc_control: 0x%x \r\n",m_whc_control); //STATE "D" (RIGHT)
 							//wheelchair_move_right(&dac1_val, &dac2_val);
 							wheelchair_set_right();
-							is_in_reset_state = false;
+							//is_in_reset_state = false;
 							//NRF_LOG_PRINTF("Updated Dac Vals: [%d] [%d] \r\n",dac1_val, dac2_val);
 							
 						} else if (m_whc_control == 0xFF) {
 							//NRF_LOG_PRINTF("m_whc_control: 0x%x \r\n",m_whc_control); //STATE "?" (REVERSE) 
-							wheelchair_move_reverse();
-							is_in_reset_state = false;
+							wheelchair_set_reverse();
+							//is_in_reset_state = false;
 							//NRF_LOG_PRINTF("Updated Dac Vals: [%d] [%d] \r\n",dac1_val, dac2_val);
 							
 						}

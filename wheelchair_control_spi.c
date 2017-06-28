@@ -139,11 +139,13 @@ void wheelchair_set_forward() {
 		uint8_t byte1_1 = 0;
 		uint8_t byte2_1 = 0;
 		//uint8_t errcode;
-		uint16_t desiredState = 3200; //2.70*833.33 = 2249.991 (DAC 1 CONTROLLING PINS 4 and 5)
+		uint16_t desiredState = 2700; //2.70*833.33 = 2249.991 (DAC 1 CONTROLLING PINS 4 and 5)
+		//uint16_t desiredState = 3175; //3.81V
 		byte1 = highbyte(desiredState);
 		byte2 = lowbyte(desiredState);
 		byte1 = encodeFirstByte(byte1);
-		uint16_t desiredState2 = 2067; 	// DAC 2 Controlling pins 2 and 7 (formerly 1967)
+		uint16_t desiredState2 = 2000; 	// 2.36*833.33 DAC 2 Controlling pins 2 and 7 (formerly 1967)
+		//uint16_t desiredState2 = 1967; //2.36V
 		byte1_1 = highbyte(desiredState2);
 		byte2_1 = lowbyte(desiredState2);
 		byte1_1 = encodeFirstByte(byte1_1);

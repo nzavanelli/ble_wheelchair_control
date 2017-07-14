@@ -1,6 +1,10 @@
 # Bluetooth Low Energy wheelchair control firmware for nRF51 (SDK11, S130)
 
 This firmware is for an nRF51x22 microcontroller using SDK 11.0.0 and Softdevice S130. 
+In order to edit and compile, please download the SDK 11.0.0 distribution from https://developer.nordicsemi.com/nRF5_SDK/nRF5_SDK_v11.x.x/
+Extract the repository into *nRF5_SDK_11.0.0\examples\<my_projects>\ *, so that the main.c file is located in a folder like:
+_nRF5_SDK_11.0.0\examples\<my_projects>\<repository name>\main.c_
+
 
 There is a single service and characteristic for wheelchair control with write characteristic enabled. 
 You may send commands from a central device such as an Android or iOS device using Nordic's 'nRF Connect' application.
@@ -56,4 +60,4 @@ Also, note that for different versions of the board, the LED indicators, and the
 #endif
 ```
 
-And finally, the min and max connection intervals for Bluetooth Low Energy packet transfer are 10*1.25ms, and 50*1.25 ms respectively. You may reduce either to get a lower latency connection, at the cost of higher power consumption. 
+And finally, the min and max connection intervals for Bluetooth Low Energy packet transfer are 10x1.25ms, and 50x1.25 ms respectively. You may reduce either to get a lower latency connection, at the cost of higher power consumption. 

@@ -47,13 +47,4 @@ void wheelchair_set_right(void);
 void wheelchair_set_reverse(void);
 
 void wheelchair_reset_init(void);
-/*
-bool wheelchair_reset(bool is_reset, uint16_t *dac1_value, uint16_t *dac2_value);
-
-void wheelchair_move_forward(uint16_t *dac1_value, uint16_t *dac2_value);
-
-void wheelchair_move_left(uint16_t *dac1_value, uint16_t *dac2_value);
-
-void wheelchair_move_right(uint16_t *dac1_value, uint16_t *dac2_value);
-*/
 

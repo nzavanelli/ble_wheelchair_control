@@ -3,9 +3,9 @@
 This firmware is for an nRF51x22 microcontroller using SDK 11.0.0 and Softdevice S130. 
 
 In order to edit and compile, please download the SDK 11.0.0 distribution from https://developer.nordicsemi.com/nRF5_SDK/nRF5_SDK_v11.x.x/
-Extract the repository into ...\nRF5_SDK_11.0.0\examples\<my_projects>\, so that the main.c file is located in a folder like:
+Extract the repository into ...\nRF5_SDK_11.0.0\examples\\<my_projects>\\, so that the main.c file is located in a folder like:
 
-> nRF5_SDK_11.0.0\examples\<my_projects>\<repository name>\main.c
+> nRF5_SDK_11.0.0\examples\\<my_projects>\\\<repository name>\main.c
 
 
 There is a single service and characteristic for wheelchair control with write characteristic enabled. 

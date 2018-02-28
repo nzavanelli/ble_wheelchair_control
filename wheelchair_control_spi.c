@@ -144,7 +144,7 @@ void wheelchair_set_forward() {
 		byte1 = highbyte(desiredState);
 		byte2 = lowbyte(desiredState);
 		byte1 = encodeFirstByte(byte1);
-		uint16_t desiredState2 = 2000; 	// 2.36*833.33 DAC 2 Controlling pins 2 and 7 (formerly 1967)
+		uint16_t desiredState2 = 2080; 	// 2.36*833.33 DAC 2 Controlling pins 2 and 7 (formerly 1967)
 		//uint16_t desiredState2 = 1967; //2.36V
 		byte1_1 = highbyte(desiredState2);
 		byte2_1 = lowbyte(desiredState2);
@@ -164,7 +164,7 @@ void wheelchair_set_left() {
 		byte2 = lowbyte(desiredState);
 		byte1 = encodeFirstByte(byte1);
 	
-		uint16_t desiredState2 = 1708; //2.70*833.33 = 2249.991
+		uint16_t desiredState2 = 1840; //2.70*833.33 = 2249.991
 		byte1_1 = highbyte(desiredState2);
 		byte2_1 = lowbyte(desiredState2);
 		byte1_1 = encodeFirstByte(byte1_1);
@@ -182,7 +182,7 @@ void wheelchair_set_right() {
 		byte1 = highbyte(desiredState);
 		byte2 = lowbyte(desiredState);
 		byte1 = encodeFirstByte(byte1);
-		uint16_t desiredState2 = 2250; //2.70*833.33 = 2249.991
+		uint16_t desiredState2 = 2323; //2.70*833.33 = 2249.991
 		byte1_1 = highbyte(desiredState2);
 		byte2_1 = lowbyte(desiredState2);
 		byte1_1 = encodeFirstByte(byte1_1);
